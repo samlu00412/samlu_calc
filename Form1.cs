@@ -4,10 +4,12 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NCalc;
+using Expression = NCalc.Expression;
 
 
 namespace calculator {
@@ -42,6 +44,7 @@ namespace calculator {
                 if (calculationDone) {
                     result.Text = keyChar;  // 新的數字覆蓋結果
                     calculationDone = false;  // 重置運算狀態
+                    error = false;
                 }
                 else if (error) {
                     result.Clear();  // 清除錯誤訊息
@@ -55,8 +58,12 @@ namespace calculator {
             }
             // 處理等號鍵
             else if (e.KeyCode == Keys.Enter) {
-                CalculateResult();
+                CalculateResult(result.Text);
                 e.SuppressKeyPress = true;  // 防止預設的按鍵行為
+            }
+            else if(e.KeyCode == Keys.Back) {
+                DeleteLastCharacter();
+                e.SuppressKeyPress= true;
             }
         }
 
@@ -83,6 +90,7 @@ namespace calculator {
                 result.Clear();
             if (error) {
                 result.Text = text;
+                calculationDone = false;
                 error = false;
             }
             if (calculationDone) {
@@ -100,8 +108,9 @@ namespace calculator {
             AppendToResult(" " + btn.Text + " ");  // 繼續添加運算符
         }
         private void Equal_click(object sender, EventArgs e) {
-            CalculateResult();
+            CalculateResult(result.Text);
         }
+        
         // 小數點按鈕點擊
         private void Dot_click(object sender, EventArgs e) {
             AppendToResult(".");
@@ -136,18 +145,15 @@ namespace calculator {
             calculationDone = false;  // 重置運算狀態
         }
         // 計算表達式結果
-        private void CalculateResult() {
+        private void CalculateResult(string expression) {
             try {
-                var dataTable = new DataTable();
-                var resultValue = dataTable.Compute(result.Text, "");
-                double numericResult = Convert.ToDouble(resultValue);
-                numericResult = Math.Round(numericResult, 5);  // 四捨五入到小數點後5位
-                if (numericResult % 1 == 0)
-                    result.Text = ((int)numericResult).ToString();  // 顯示為整數
-                else
-                    result.Text = numericResult.ToString();  // 保留小數
-
-                lastResultLabel.Text = "Last Result: " + numericResult.ToString();  // 顯示在 Label
+                Expression ncalcExpression = new Expression(expression);
+                object answer = Convert.ToInt64(ncalcExpression.Evaluate());
+                double temp = Convert.ToDouble(answer);
+                temp = Math.Round(temp, 5);
+                // 顯示結果
+                result.Text = temp.ToString();
+                lastResultLabel.Text = "ans: " + temp.ToString();
                 calculationDone = false;  // 設置為運算完成狀態
             }
             catch (Exception) {
