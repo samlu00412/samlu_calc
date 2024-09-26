@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NCalc;
+
 
 namespace calculator {
     public partial class Form1 : Form {
@@ -26,7 +28,6 @@ namespace calculator {
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e) {
-            
             //deal with parentheses
             if (e.Shift && e.KeyCode == Keys.D9) {
                 AppendToResult("(");  // 左括號
@@ -36,12 +37,28 @@ namespace calculator {
                 AppendToResult(")");  // 右括號
                 e.SuppressKeyPress = true;  // 禁止輸入數字0
             }
-            
+            else if ((e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9) || (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9)) {
+                string keyChar = (e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9)? (e.KeyCode - Keys.D0).ToString() : (e.KeyCode - Keys.NumPad0).ToString();
+                if (calculationDone) {
+                    result.Text = keyChar;  // 新的數字覆蓋結果
+                    calculationDone = false;  // 重置運算狀態
+                }
+                else if (error) {
+                    result.Clear();  // 清除錯誤訊息
+                    result.Text = keyChar;  // 顯示新的數字
+                    error = false;  // 重置錯誤狀態
+                }
+                else {
+                    AppendToResult(keyChar);  // 否則繼續添加數字
+                }
+                e.SuppressKeyPress = true;  // 防止預設的按鍵行為
+            }
             // 處理等號鍵
-            if (e.KeyCode == Keys.Enter)
+            else if (e.KeyCode == Keys.Enter) {
                 CalculateResult();
+                e.SuppressKeyPress = true;  // 防止預設的按鍵行為
+            }
         }
-
 
         private void Form1_Load(object sender, EventArgs e) {
 
@@ -54,6 +71,7 @@ namespace calculator {
                 calculationDone = false;  // 重置運算狀態
             }
             else if (error) {
+                result.Clear();
                 result.Text = btn.Text;
                 error = false;
             }
@@ -63,7 +81,10 @@ namespace calculator {
         private void AppendToResult(string text) {
             if (result.Text == "0")
                 result.Clear();
-
+            if (error) {
+                result.Text = text;
+                error = false;
+            }
             if (calculationDone) {
                 result.Text = text;  // 如果剛完成運算，覆蓋顯示框
                 calculationDone = false;  // 重置運算完成狀態
@@ -81,7 +102,6 @@ namespace calculator {
         private void Equal_click(object sender, EventArgs e) {
             CalculateResult();
         }
-
         // 小數點按鈕點擊
         private void Dot_click(object sender, EventArgs e) {
             AppendToResult(".");
@@ -108,7 +128,6 @@ namespace calculator {
             else if (result.Text.Length > 0)
                 result.Text = "0";
         }
-
         // 刪除全部內容
         private void Clear_click(object sender, EventArgs e) {
             result.Clear();  // 清除顯示框
@@ -116,7 +135,6 @@ namespace calculator {
             lastResultLabel.Text = "";  // 清空顯示最後結果的 Label
             calculationDone = false;  // 重置運算狀態
         }
-
         // 計算表達式結果
         private void CalculateResult() {
             try {

@@ -8,3 +8,5 @@ C:\project\calculator\obj\Debug\calculator.csproj.GenerateResource.cache
 C:\project\calculator\obj\Debug\calculator.csproj.CoreCompileInputs.cache
 C:\project\calculator\obj\Debug\calculator.exe
 C:\project\calculator\obj\Debug\calculator.pdb
+C:\project\calculator\bin\Debug\NCalc.dll
+C:\project\calculator\obj\Debug\calculator.csproj.Up2Date
