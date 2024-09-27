@@ -148,7 +148,7 @@ namespace calculator {
         private void CalculateResult(string expression) {
             try {
                 Expression ncalcExpression = new Expression(expression);
-                object answer = Convert.ToInt64(ncalcExpression.Evaluate());
+                object answer = Convert.ToDouble(ncalcExpression.Evaluate());
                 double temp = Convert.ToDouble(answer);
                 temp = Math.Round(temp, 5);
                 // 顯示結果
