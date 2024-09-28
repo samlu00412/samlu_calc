@@ -56,9 +56,9 @@ namespace calculator {
                     result.Text = keyChar;  // 顯示新的數字
                     error = false;  // 重置錯誤狀態
                 }
-                else {
+                else 
                     AppendToResult(keyChar);  // 否則繼續添加數字
-                }
+                
                 e.SuppressKeyPress = true;
             }
             // 處理等號鍵
@@ -200,7 +200,7 @@ namespace calculator {
             }
         }
         private double Evaluatevalue() { // 1+2*3/4
-            Stack<double> values = new Stack<double>();
+            Stack<double> operands = new Stack<double>();
             Stack<char> operators = new Stack<char>();
             int i = 0;
             while (i < result.Text.Length) {
@@ -210,22 +210,51 @@ namespace calculator {
                 }
                 if (char.IsDigit(result.Text[i])) {
                     string s = "";
-                    while (i < result.Text.Length && (char.IsDigit(result.Text[i]) || result.Text[i] == '.')) 
+                    while (i < result.Text.Length && (char.IsDigit(result.Text[i]) || result.Text[i] == '.'))
                         s += result.Text[i++];
-                    
-                    values.Push(double.Parse(s));
+
+                    operands.Push(double.Parse(s));
                 }
                 else if (Isop(result.Text[i])) {
-                    while (operators.Count > 0 && Priority(operators.Peek()) >= Priority(result.Text[i])) 
-                        values.Push(Simplify(values.Pop(), values.Pop(), operators.Pop()));
-
+                    int t = i - 1;
+                    bool checkminus = (i == 0) ? result.Text[i] == '-' : result.Text[t] == '-';
+                    if (result.Text[i] == '-') {
+                        //first char is '-' or previous char is '-' is minus, considered as number
+                        if (checkminus) {
+                            string s = "-";
+                            i++;
+                            while (i < result.Text.Length && (char.IsDigit(result.Text[i]) || result.Text[i] == '.'))
+                                s += result.Text[i++];
+                            operands.Push(double.Parse(s));
+                        }
+                        //else is substract, considered as operator
+                        else {
+                            while (operators.Count > 0 && Priority(operators.Peek()) >= Priority(result.Text[i]))
+                                operands.Push(Simplify(operands.Pop(), operands.Pop(), operators.Pop()));
+                            operators.Push(result.Text[i++]);
+                        }
+                    }
+                    else {//+,*,/
+                        while (operators.Count > 0 && Priority(operators.Peek()) >= Priority(result.Text[i]))
+                            operands.Push(Simplify(operands.Pop(), operands.Pop(), operators.Pop()));
+                        operators.Push(result.Text[i++]);
+                    }
+                }
+                else if (result.Text[i] =='(') 
                     operators.Push(result.Text[i++]);
+
+                else if (result.Text[i] == ')') {
+                    while(operators.Peek() != '(') 
+                        operands.Push(Simplify(operands.Pop(),operands.Pop(),operators.Pop()));
+                    
+                    operators.Pop();
+                    i++;
                 }
             }
             while (operators.Count > 0)
-                values.Push(Simplify(values.Pop(), values.Pop(), operators.Pop()));
+                operands.Push(Simplify(operands.Pop(), operands.Pop(), operators.Pop()));
 
-            return values.Pop();
+            return operands.Pop();
         }
         private int Priority(char c) {
             switch(c) {
