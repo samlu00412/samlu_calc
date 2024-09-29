@@ -151,33 +151,24 @@ namespace calculator {
         private bool ValidateExpression(string expression) {
             // 檢查運算符連續、括號匹配、小數點是否合法
             int openParen = 0;
-            bool lastWasOperator = false;
             bool hasDecimal = false;
 
             foreach (char c in expression) {
-                if (char.IsDigit(c)) {
-                    lastWasOperator = false;
-                }
-                else if (c == '(') {
+                if (char.IsDigit(c)) { }
+                
+                else if (c == '(') 
                     openParen++;
-                }
                 else if (c == ')') {
                     openParen--;
                     if (openParen < 0) return false;
                 }
-                else if (c == '.' && !hasDecimal) {
+                else if (c == '.' && !hasDecimal) 
                     hasDecimal = true;
-                }
-                else if ("+-*/".Contains(c)) {
-                    if (lastWasOperator) return false; // 防止連續運算符
-                    lastWasOperator = true;
+                else if ("+-*/".Contains(c)) 
                     hasDecimal = false;
-                }
-                else {
+                else 
                     return false; // 無效字符
-                }
             }
-
             return openParen == 0; // 括號匹配
         }
         private void CalculateResult(string expression) {
@@ -217,9 +208,9 @@ namespace calculator {
                 }
                 else if (Isop(result.Text[i])) {
                     int t = i - 1;
-                    bool checkminus = (i == 0) ? result.Text[i] == '-' : result.Text[t] == '-';
+                    bool checkminus = (i == 0) ? result.Text[i] == '-' : Isop(result.Text[t]);
                     if (result.Text[i] == '-') {
-                        //first char is '-' or previous char is '-' is minus, considered as number
+                        //first char is '-' or previous char is operator is minus, considered as number
                         if (checkminus) {
                             string s = "-";
                             i++;
@@ -229,7 +220,7 @@ namespace calculator {
                         }
                         //else is substract, considered as operator
                         else {
-                            while (operators.Count > 0 && Priority(operators.Peek()) >= Priority(result.Text[i]))
+                            while (operators.Count > 0 && Priority(operators.Peek()) >= Priority(result.Text[i])) 
                                 operands.Push(Simplify(operands.Pop(), operands.Pop(), operators.Pop()));
                             operators.Push(result.Text[i++]);
                         }
