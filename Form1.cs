@@ -81,14 +81,18 @@ namespace calculator {
             if (calculationDone) {
                 result.Text = btn.Text;  // 新的數字覆蓋結果
                 calculationDone = false;  // 重置運算狀態
+                result.Focus();
             }
             else if (error) {
                 result.Clear();
                 result.Text = btn.Text;
                 error = false;
+                result.Focus();
             }
-            else
+            else {
                 AppendToResult(btn.Text);  // 否則繼續添加數字
+                result.Focus();
+            }
         }
         private void AppendToResult(string text) {
             if (result.Text == "0")
@@ -111,26 +115,31 @@ namespace calculator {
                 calculationDone = false;  // 如果運算剛結束，重置運算狀態
 
             AppendToResult(btn.Text);  // 繼續添加運算符
+            result.Focus();
         }
         private void Equal_click(object sender, EventArgs e) {
-
             CalculateResult(result.Text);
+            result.Focus();
         }
 
         // 小數點按鈕點擊
         private void Dot_click(object sender, EventArgs e) {
             AppendToResult(".");
+            result.Focus();
         }
         // 左括號按鈕點擊
         private void LeftParen_click(object sender, EventArgs e) {
             AppendToResult("(");
+            result.Focus();
         }
         private void RightParen_click(object sender, EventArgs e) {
             AppendToResult(")");
+            result.Focus();
         }
         // 刪除單個字元
         private void Delete_click(object sender, EventArgs e) {
             DeleteLastCharacter();
+            result.Focus();
         }
         // 刪除最後一個字元的功能
         private void DeleteLastCharacter() {
@@ -146,6 +155,7 @@ namespace calculator {
             result.Text = "0";  // 重置顯示為0
             lastResultLabel.Text = "";  // 清空顯示最後結果的 Label
             calculationDone = false;  // 重置運算狀態
+            result.Focus();
         }
         //check expression
         private bool ValidateExpression(string expression) {
@@ -278,6 +288,7 @@ namespace calculator {
         }
         private void Memory_click(object sender, EventArgs e) {
             AppendToResult(memory);
+            result.Focus();
         }
     }
 }
