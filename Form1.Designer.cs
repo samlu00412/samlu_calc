@@ -51,6 +51,7 @@
             this.button20 = new System.Windows.Forms.Button();
             this.lastResultLabel = new System.Windows.Forms.Label();
             this.button21 = new System.Windows.Forms.Button();
+            this.button22 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // result
@@ -302,11 +303,23 @@
             this.button21.UseVisualStyleBackColor = true;
             this.button21.Click += new System.EventHandler(this.Memory_click);
             // 
+            // button22
+            // 
+            this.button22.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button22.Location = new System.Drawing.Point(211, 419);
+            this.button22.Name = "button22";
+            this.button22.Size = new System.Drawing.Size(102, 102);
+            this.button22.TabIndex = 23;
+            this.button22.Text = "^";
+            this.button22.UseVisualStyleBackColor = true;
+            this.button22.Click += new System.EventHandler(this.Power_click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(814, 764);
+            this.Controls.Add(this.button22);
             this.Controls.Add(this.button21);
             this.Controls.Add(this.lastResultLabel);
             this.Controls.Add(this.button20);
@@ -363,6 +376,7 @@
         private System.Windows.Forms.Button button20;
         private System.Windows.Forms.Label lastResultLabel;
         private System.Windows.Forms.Button button21;
+        private System.Windows.Forms.Button button22;
     }
 }
 

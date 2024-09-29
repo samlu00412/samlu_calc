@@ -1,16 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Drawing.Text;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using NCalc;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Button = System.Windows.Forms.Button;
 
 
@@ -20,7 +11,6 @@ namespace calculator {
         private bool calculationDone = false;
         bool error = false;
         string memory = "";
-
         public Form1() {
             InitializeComponent();
             result.Text = "0";
@@ -29,42 +19,46 @@ namespace calculator {
             this.KeyDown += new KeyEventHandler(Form1_KeyDown);
         }
         private void Result_TextChanged(object sender, EventArgs e) {
-            // 每次文字變更後，將光標移動到最後一個字元
+            // 文字變更後，將光標移動到最後一個字元
             result.SelectionStart = result.Text.Length;
-            result.SelectionLength = 0;  // 確保沒有選取任何文字
+            result.SelectionLength = 0;  // 確保沒有選取文字
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e) {
             //deal with parentheses
             if (e.Shift && e.KeyCode == Keys.D9) {
                 AppendToResult("(");  // 左括號
-                e.SuppressKeyPress = true;  // 禁止輸入數字9
+                e.SuppressKeyPress = true;  // 禁止輸入9
             }
             else if (e.Shift && e.KeyCode == Keys.D0) {
                 AppendToResult(")");  // 右括號
-                e.SuppressKeyPress = true;  // 禁止輸入數字0
+                e.SuppressKeyPress = true;  // 禁止輸入0
+            }
+            else if (e.Shift && e.KeyCode == Keys.D6) {
+                AppendToResult("^");
+                e.SuppressKeyPress = true;
             }
             else if ((e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9) || (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9)) {
                 string keyChar = (e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9) ? (e.KeyCode - Keys.D0).ToString() : (e.KeyCode - Keys.NumPad0).ToString();
                 if (calculationDone) {
-                    result.Text = keyChar;  // 新的數字覆蓋結果
-                    calculationDone = false;  // 重置運算狀態
+                    result.Text = keyChar;  // 新數字覆蓋結果
+                    calculationDone = false;  // 重置運算
                     error = false;
                 }
                 else if (error) {
                     result.Clear();  // 清除錯誤訊息
-                    result.Text = keyChar;  // 顯示新的數字
-                    error = false;  // 重置錯誤狀態
+                    result.Text = keyChar;  // 顯示新數字
+                    error = false;  // 重置狀態
                 }
                 else 
-                    AppendToResult(keyChar);  // 否則繼續添加數字
+                    AppendToResult(keyChar);
                 
                 e.SuppressKeyPress = true;
             }
             // 處理等號鍵
             else if (e.KeyCode == Keys.Enter) {
                 CalculateResult(result.Text);
-                e.SuppressKeyPress = true;  // 防止預設的按鍵行為
+                e.SuppressKeyPress = true;  // 防止預設按鍵行為
             }
             else if (e.KeyCode == Keys.Back) {
                 DeleteLastCharacter();
@@ -90,7 +84,7 @@ namespace calculator {
                 result.Focus();
             }
             else {
-                AppendToResult(btn.Text);  // 否則繼續添加數字
+                AppendToResult(btn.Text);
                 result.Focus();
             }
         }
@@ -103,11 +97,11 @@ namespace calculator {
                 error = false;
             }
             if (calculationDone) {
-                result.Text = text;  // 如果剛完成運算，覆蓋顯示框
+                result.Text = text;  // 如果完成運算，覆蓋顯示框
                 calculationDone = false;  // 重置運算完成狀態
             }
-            else
-                result.Text += text;  // 否則繼續追加
+            else 
+                result.Text += text;
         }
         private void Operation_click(object sender, EventArgs e) {
             Button btn = sender as Button;
@@ -121,13 +115,10 @@ namespace calculator {
             CalculateResult(result.Text);
             result.Focus();
         }
-
-        // 小數點按鈕點擊
         private void Dot_click(object sender, EventArgs e) {
             AppendToResult(".");
             result.Focus();
         }
-        // 左括號按鈕點擊
         private void LeftParen_click(object sender, EventArgs e) {
             AppendToResult("(");
             result.Focus();
@@ -141,7 +132,7 @@ namespace calculator {
             DeleteLastCharacter();
             result.Focus();
         }
-        // 刪除最後一個字元的功能
+        // 刪除最後一個字元
         private void DeleteLastCharacter() {
             //del 1 digit if can
             if (result.Text.Length > 1)
@@ -149,7 +140,7 @@ namespace calculator {
             else if (result.Text.Length > 0)
                 result.Text = "0";
         }
-        // 刪除全部內容
+        // 刪除全部
         private void Clear_click(object sender, EventArgs e) {
             result.Clear();  // 清除顯示框
             result.Text = "0";  // 重置顯示為0
@@ -159,7 +150,7 @@ namespace calculator {
         }
         //check expression
         private bool ValidateExpression(string expression) {
-            // 檢查運算符連續、括號匹配、小數點是否合法
+            // 檢查括號匹配、小數點是否合法
             int openParen = 0;
             bool hasDecimal = false;
 
@@ -174,7 +165,7 @@ namespace calculator {
                 }
                 else if (c == '.' && !hasDecimal) 
                     hasDecimal = true;
-                else if ("+-*/".Contains(c)) 
+                else if ("+-*/^".Contains(c)) 
                     hasDecimal = false;
                 else 
                     return false; // 無效字符
@@ -186,11 +177,11 @@ namespace calculator {
                 if (ValidateExpression(expression)) {
                     var answer = Evaluatevalue();
                     result.Text = answer.ToString();
-                    memory = answer.ToString(); // 記憶本次結果
-                    lastResultLabel.Text = answer.ToString();
+                    memory = result.Text; // 記憶本次結果
+                    lastResultLabel.Text = result.Text;
                 }
                 else {
-                    result.Text = "error";
+                    result.Text = "Error";
                     error = true;
                 }
                 calculationDone = false;  // 設置為運算完成狀態
@@ -200,7 +191,7 @@ namespace calculator {
                 error = true;
             }
         }
-        private double Evaluatevalue() { // 1+2*3/4
+        private double Evaluatevalue() { 
             Stack<double> operands = new Stack<double>();
             Stack<char> operators = new Stack<char>();
             int i = 0;
@@ -235,7 +226,7 @@ namespace calculator {
                             operators.Push(result.Text[i++]);
                         }
                     }
-                    else {//+,*,/
+                    else {//+,*,/,^
                         while (operators.Count > 0 && Priority(operators.Peek()) >= Priority(result.Text[i]))
                             operands.Push(Simplify(operands.Pop(), operands.Pop(), operators.Pop()));
                         operators.Push(result.Text[i++]);
@@ -265,6 +256,8 @@ namespace calculator {
                 case '*':
                 case '/':
                     return 2;
+                case '^':
+                    return 3;
                 default:
                     return 0;
             }
@@ -279,15 +272,22 @@ namespace calculator {
                     return b * a;
                 case '/':
                     return b / a;
+                case '^':
+                    return Math.Pow(b, a);
                 default:
                     return 0;
             }
         }
         private bool Isop(char c) {
-            return c == '+' || c == '-' || c == '*' || c == '/';
+            return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
         }
         private void Memory_click(object sender, EventArgs e) {
             AppendToResult(memory);
+            result.Focus();
+        }
+
+        private void Power_click(object sender, EventArgs e) {
+            AppendToResult("^");
             result.Focus();
         }
     }
