@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using Button = System.Windows.Forms.Button;
 
 
-
 namespace calculator {
     public partial class Form1 : Form {
         private bool calculationDone = false;
@@ -35,7 +34,9 @@ namespace calculator {
                 e.SuppressKeyPress = true;  // 禁止輸入0
             }
             else if (e.Shift && e.KeyCode == Keys.D6) {
-                AppendToResult("^");
+                if (Isop(result.Text[result.Text.Length - 1])) { }
+                else
+                    AppendToResult("^");
                 e.SuppressKeyPress = true;
             }
             else if ((e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9) || (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9)) {
@@ -107,8 +108,9 @@ namespace calculator {
             Button btn = sender as Button;
             if (calculationDone)
                 calculationDone = false;  // 如果運算剛結束，重置運算狀態
-
-            AppendToResult(btn.Text);  // 繼續添加運算符
+            if (Isop(result.Text[result.Text.Length - 1])) { }
+            else
+                AppendToResult(btn.Text);  // 繼續添加運算符
             result.Focus();
         }
         private void Equal_click(object sender, EventArgs e) {
@@ -208,13 +210,11 @@ namespace calculator {
                     operands.Push(double.Parse(s));
                 }
                 else if (Isop(result.Text[i])) {
-                    int t = i - 1;
-                    bool checkminus = (i == 0) ? result.Text[i] == '-' : Isop(result.Text[t]);
                     if (result.Text[i] == '-') {
                         //first char is '-' or previous char is operator is minus, considered as number
-                        if (checkminus) {
-                            string s = "-";
+                        if (result.Text[i] == '-' && (i == 0 || result.Text[i-1] == '(' || Isop(result.Text[i-1]))) {
                             i++;
+                            string s = "-";
                             while (i < result.Text.Length && (char.IsDigit(result.Text[i]) || result.Text[i] == '.'))
                                 s += result.Text[i++];
                             operands.Push(double.Parse(s));
