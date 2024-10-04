@@ -101,6 +101,16 @@ namespace calculator {
                 result.Text = text;  // 如果完成運算，覆蓋顯示框
                 calculationDone = false;  // 重置運算完成狀態
             }
+            if (result.Text.Length > 0) {
+                char lastChar = result.Text[result.Text.Length - 1];
+                if ((char.IsDigit(lastChar) || lastChar == ')') && text == "(") 
+                    result.Text += "*";
+                // 如果當前字符是右括號並且新輸入的是數字或左括號，插入乘號
+                else if (lastChar == ')' && (char.IsDigit(text[0]) || text == "(")) 
+                    result.Text += "*";
+                result.Text += text;
+            }
+            // 最後添加新的字符
             else 
                 result.Text += text;
         }
